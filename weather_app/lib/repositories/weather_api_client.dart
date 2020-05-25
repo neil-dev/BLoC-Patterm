@@ -24,7 +24,8 @@ class WeatherApiClient {
   }
 
   Future<Weather> fetchWeather(int locationId) async {
-    final weatherUrl = '$baseUrl/api/location/search/$locationId';
+    print('### FetchWeather');
+    final weatherUrl = '$baseUrl/api/location/$locationId';
     final weatherResponse = await this.httpClient.get(weatherUrl);
 
     if (weatherResponse.statusCode != 200) {

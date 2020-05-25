@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './widgets.dart';
 import '../blocs/blocs.dart';
 
-class Weather extends StatelessWidget {
+class Weather extends StatefulWidget {
+  @override
+  _WeatherState createState() => _WeatherState();
+}
+
+class _WeatherState extends State<Weather> {
+  Completer<void> _refreshCompleter;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshCompleter = Completer<void>();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +44,13 @@ class Weather extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: BlocBuilder<WeatherBloc, WeatherState>(
+        child: BlocConsumer<WeatherBloc, WeatherState>(
+          listener: (context, state) {
+            if (state is WeatherLoaded) {
+              _refreshCompleter?.complete();
+              _refreshCompleter = Completer();
+            }
+          },
           builder: (context, state) {
             if (state is WeatherEmpty) {
               return Center(
@@ -43,24 +63,32 @@ class Weather extends StatelessWidget {
             if (state is WeatherLoaded) {
               final weather = state.weather;
 
-              return ListView(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(top: 100.0),
-                    child: Center(
-                      child: Location(location: weather.location),
+              return RefreshIndicator(
+                onRefresh: () {
+                  BlocProvider.of<WeatherBloc>(context).add(
+                    RefreshWeather(city: state.weather.location),
+                  );
+                  return _refreshCompleter.future;
+                },
+                child: ListView(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(top: 100.0),
+                      child: Center(
+                        child: Location(location: weather.location),
+                      ),
                     ),
-                  ),
-                  Center(
-                    child: LastUpdated(dateTime: weather.lastUpdated),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 50.0),
-                    child: Center(
-                      child: CombinedWeatherTemperature(weather: weather),
+                    Center(
+                      child: LastUpdated(dateTime: weather.lastUpdated),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 50.0),
+                      child: Center(
+                        child: CombinedWeatherTemperature(weather: weather),
+                      ),
+                    ),
+                  ],
+                ),
               );
             }
             if (state is WeatherError) {
