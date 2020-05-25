@@ -15,7 +15,12 @@ void main() {
       httpClient: http.Client(),
     ),
   );
-  runApp(App(weatherRepository: weatherRepository));
+  runApp(
+    BlocProvider<ThemeBloc>(
+      create: (context) => ThemeBloc(),
+      child: App(weatherRepository: weatherRepository),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
@@ -27,13 +32,18 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Weather',
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider(
-        create: (context) => WeatherBloc(weatherRepository: weatherRepository),
-        child: Weather(),
-      ),
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, themeState) {
+        return MaterialApp(
+          title: 'Weather',
+          debugShowCheckedModeBanner: false,
+          home: BlocProvider(
+            create: (context) =>
+                WeatherBloc(weatherRepository: weatherRepository),
+            child: Weather(),
+          ),
+        );
+      },
     );
   }
 }
