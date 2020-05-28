@@ -1,10 +1,13 @@
+import 'package:bloc_lib/simple_bloc_delegate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './counter_bloc.dart';
-import './counter_state.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  BlocSupervisor.delegate = SimpleBlocDelegate();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -14,32 +17,23 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePage extends StatelessWidget {
   final _counterBloc = CounterBloc();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Flutter Demo Home Page'),
       ),
-      body: BlocBuilder(
+      body: BlocBuilder<CounterBloc, int>(
         bloc: _counterBloc,
-        builder: (context, CounterState state) {
+        builder: (context, count) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -48,8 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   'You have pushed the button this many times:',
                 ),
                 Text(
-                  '${state.counter}',
-                  style: Theme.of(context).textTheme.display1,
+                  '$count',
+                  style: Theme.of(context).textTheme.headline1,
                 ),
               ],
             ),
@@ -61,9 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           FloatingActionButton(
             onPressed: () {
-              setState(() {
-                _counterBloc.onIncrement();
-              });
+              _counterBloc.add(CounterEvent.increment);
             },
             tooltip: 'Increment',
             child: Icon(Icons.add),
@@ -71,9 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
           SizedBox(width: 10),
           FloatingActionButton(
             onPressed: () {
-              setState(() {
-                _counterBloc.onDecrement();
-              });
+              _counterBloc.add(CounterEvent.decrement);
             },
             tooltip: 'Decrement',
             child: Icon(Icons.remove),
@@ -81,11 +71,5 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _counterBloc.close();
-    super.dispose();
   }
 }
