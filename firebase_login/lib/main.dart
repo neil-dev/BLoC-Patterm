@@ -1,5 +1,3 @@
-import 'package:firebase_login/home_screen.dart';
-import 'package:firebase_login/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_login/simple_bloc_delegate.dart';
 import 'package:firebase_login/authentication_bloc/authentication_bloc.dart';
 import 'package:firebase_login/user_repository.dart';
+import 'package:firebase_login/home_screen.dart';
+import 'package:firebase_login/login/login.dart';
+import 'package:firebase_login/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,9 @@ class App extends StatelessWidget {
         builder: (context, state) {
           if (state is Uninitialized) {
             return SplashScreen();
+          }
+          if (state is Unauthenticated) {
+            return LoginScreen(userRepository: _userRepository);
           }
           if (state is Authenticated) {
             return HomeScreen(name: state.displayName);
