@@ -13,7 +13,7 @@ class FirebaseTodosRepository implements TodosRepository {
   }
 
   @override 
-  Future<void> deletedTodo(Todo todo) async {
+  Future<void> deleteTodo(Todo todo) async {
     return todoCollection.document(todo.id).delete();
   }
 
