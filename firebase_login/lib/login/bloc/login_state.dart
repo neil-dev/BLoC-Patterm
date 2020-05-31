@@ -62,7 +62,7 @@ class LoginState {
     bool isEmailValid,
     bool isPasswordValid,
   }) {
-    return LoginState(
+    return copyWith(
       isEmailValid: isEmailValid,
       isPasswordValid: isPasswordValid,
       isSubmitting: false,
